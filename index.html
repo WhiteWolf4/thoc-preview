@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>THOC Countdown</title>
+    <style>
+        body {
+          margin: 0;
+          height: 100vh;
+          background: linear-gradient(to bottom, #000000, #001f3f);
+          overflow: hidden;
+          color: white;
+          font-family: 'Segoe UI', sans-serif;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          flex-direction: column;
+        }
+
+        .show {
+          z-index:2;
+        }
+
+        .show-dialog{
+          background-color: #005f6baa;
+          border: 1px solid #00e6e6;
+          padding: 1.5rem 5rem;
+          font-size: 1.5rem;
+          border-radius: 5px;
+          margin: 0.5rem;
+          color: white;
+          display:flex;
+          flex-direction:column;
+        }
+
+        .show-button{
+          background-color: #009b5fdd;
+          border: 1px solid #004b5f;
+          padding: 1.5rem 5rem;
+          font-size: 1.5rem;
+          cursor: pointer;
+          margin: 0.5rem auto;
+          color: white;
+        }
+
+        canvas {
+          position: absolute;
+          top: 0;
+          left: 0;
+          z-index: 0;
+          display:none;
+        }
+
+        .container {
+          z-index: 1;
+          text-align: center;
+          display: none;
+        }
+
+        .logo {
+          width: 420px;
+          margin-bottom: 0;
+        }
+
+        h1 {
+          margin-top:0;
+          font-size: 2rem;
+          margin-bottom: 0.5rem;
+        }
+
+        h2 {
+          font-size: 1.2rem;
+          margin-bottom: 2rem;
+          color: #cccccc;
+        }
+
+        .countdown {
+          display: flex;
+          gap: 2rem;
+          font-size: 3rem;
+          margin-bottom: 2rem;
+          padding: 0 20px;
+        }
+
+        .time {
+          background: linear-gradient(145deg, #00e6e6, #005f6b);
+          padding: 1rem;
+          border-radius: 10px;
+          min-width: 80px;
+        }
+
+        .contribute-button {
+          background-color: transparent;
+          background-image: url("static/donate.png");
+          background-position: center;
+          background-size: cover;
+          background-repeat: no-repeat;
+          border: none;
+          padding: 0.5rem 1.5rem;
+          font-size: 1rem;
+          cursor: pointer;
+          border-radius: 5px;
+          margin: 0.5rem;
+          width: 140px;
+          height: 70px;
+          margin-top:20px;
+        }
+
+        .icons {
+          display:flex;
+          align-items:center;
+          justify-content:center;
+        }
+        .icons a {
+          width: 50%;
+        }
+        .icons a button {
+            width: 250px;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+<body>
+<canvas id="bgCanvas"></canvas>
+<div class="show" id="show">
+    <p class="show-dialog">ARE YOU READY FOR THE NEXT LEVEL?<br><br>
+    <button class="show-button" onclick="togglePage()">YES</button>
+    </p>
+</div>
+<div class="container" id="container">
+    <img src="static/thoc-logo.png" alt="Logo" class="logo"/>
+    <h1>THE HOUR O'CLOCK CLUB 2.0</h1>
+    <h2>The big moment is coming soon. Stay tuned!</h2>
+    <div class="countdown" id="countdown">
+        <div class="time" id="days">0</div>
+        <div class="time" id="hours">0</div>
+        <div class="time" id="minutes">0</div>
+        <div class="time" id="seconds">0</div>
+    </div>
+    <h2>Just download Telegram if you haven’t already!</h2>
+    <div class="icons">
+        <a href="https://play.google.com/store/apps/details?id=org.telegram.messenger" target="_blank"
+           style="text-decoration:none">
+            <button style="padding: 10px 20px; font-size: 1em; border-radius: 8px; border: none; background-color: #34A853; color: white; cursor: pointer; display: flex; align-items: center; gap: 10px; margin: 0 auto; justify-content:center;">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/d/d7/Android_robot.svg"
+                     alt="Android logo" style="width: 40px; height: 40px;">
+                Download for Android
+            </button>
+        </a>
+
+        <a href="https://apps.apple.com/app/telegram-messenger/id686449807" target="_blank"
+           style="text-decoration:none">
+            <button style="padding: 10px 20px; font-size: 1em; border-radius: 8px; border: none; background-color: #FFF; color: black; cursor: pointer; display: flex; align-items: center; gap: 10px; margin: 0 auto; justify-content:center;">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple logo"
+                     style="width: 40px; height: 40px;">
+                Download for iOS
+            </button>
+        </a>
+    </div>
+
+
+    <button class="contribute-button" onclick="fakeContribute()">&nbsp;</button>
+    <audio loop id="bg_sound">
+        <source src="static/dalv2.mp3" type="audio/mpeg"/>
+        Your browser does not support the audio element.
+    </audio>
+
+    <script>
+        const targetDate = new Date("2025-05-05T08:00:00");
+
+        function updateCountdown() {
+          const now = new Date().getTime();
+          const distance = targetDate - now;
+
+          const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+          document.getElementById("days").textContent = days + "d";
+          document.getElementById("hours").textContent = hours + "h";
+          document.getElementById("minutes").textContent = minutes + "m";
+          document.getElementById("seconds").textContent = seconds + "s";
+        }
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        var sleep = function(ms){
+            return new Promise(resolve => setTimeout(resolve, ms));
+        };
+
+        function togglePage() {
+          $("#show").fadeOut(1000,async function(){
+            $("canvas").fadeIn(1000);
+            await sleep(1000);
+            $("#container").fadeIn(2000);
+          });
+          const audio = document.getElementById('bg_sound');
+          audio.play().catch(e => {
+           console.error('Error al reproducir el audio:', e);
+          });
+        }
+
+        function saveName() {
+          const name = document.getElementById("nameInput").value;
+          if (name.trim() === "") return;
+          const blob = new Blob([name + "\n"], { type: "text/plain;charset=utf-8" });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = "names.txt";
+          link.click();
+        }
+
+        function fakeContribute() {
+          alert("Just kidding! This is totally free 😄!");
+        }
+
+        const canvas = document.getElementById("bgCanvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const lights = Array.from({ length: 200 }, () => ({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          radius: Math.random() * 2 + 1,
+          speed: Math.random() * 1.5 + 0.5,
+          alpha: Math.random(),
+        }));
+
+        function animate() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          lights.forEach((light) => {
+            ctx.beginPath();
+            ctx.arc(light.x, light.y, light.radius, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(0, 255, 255, ${light.alpha})`;
+            ctx.fill();
+            light.y -= light.speed;
+            light.alpha -= 0.003;
+            if (light.y < -20 || light.alpha <= 0) {
+              light.y = canvas.height + 10;
+              light.x = Math.random() * canvas.width;
+              light.alpha = Math.random();
+            }
+          });
+          requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+</body>
+</html>
